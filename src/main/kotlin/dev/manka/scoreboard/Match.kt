@@ -3,6 +3,7 @@ package dev.manka.scoreboard
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import java.util.*
 
 class Match(homeTeam: String, awayTeam: String) {
     init {
@@ -16,6 +17,9 @@ class Match(homeTeam: String, awayTeam: String) {
     var homeScore = 0
         private set
     var awayScore = 0
+        private set
+
+    var isFinished = false
         private set
 
     fun addHomeScore() {
@@ -35,7 +39,19 @@ class Match(homeTeam: String, awayTeam: String) {
         return Unit.right()
     }
 
+    fun finish(): Either<MatchAlreadyFinishedError, Unit> {
+        if (isFinished) {
+            return MatchAlreadyFinishedError(this.homeTeam, this.awayTeam).left()
+        }
+        isFinished = true
+        return Unit.right()
+    }
+
+
     class CannotDecreaseScoreError(fromHomeScore: Int, fromAwayScore: Int, toHomeScore: Int, toAwayScore: Int) :
         Error("Cannot decrease score from $fromHomeScore:$fromAwayScore to $toHomeScore:$toAwayScore")
+
+    class MatchAlreadyFinishedError(homeTeam: String, awayTeam: String) :
+        Error("Match between $homeTeam and $awayTeam already finished")
 
 }
