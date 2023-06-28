@@ -9,4 +9,8 @@ class Scoreboard {
         matches.add(match)
         return MatchDTO(match)
     }
+
+    fun getMatches(): List<MatchDTO> {
+        return matches.map { MatchDTO(it) }
+    }
 }
