@@ -26,7 +26,7 @@ class ScoreboardTest {
     fun `started match should be added to scoreboard`() {
         scoreboard.startMatch("homeTeam", "awayTeam")
 
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
 
         SoftAssertions.assertSoftly {
             it.assertThat(matches).hasSize(1)
@@ -42,8 +42,8 @@ class ScoreboardTest {
         val match3 = createMatch("homeTeam3", "awayTeam3")
 
         SoftAssertions.assertSoftly {
-            it.assertThat(scoreboard.getMatches().size).isEqualTo(3)
-            it.assertThat(scoreboard.getMatches())
+            it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(3)
+            it.assertThat(scoreboard.getSortedMatches())
                 .containsExactlyInAnyOrder(match1, match2, match3)
         }
     }
@@ -57,8 +57,8 @@ class ScoreboardTest {
 
         SoftAssertions.assertSoftly {
             it.assertThat(match3Result.getLeft()).isInstanceOf(Scoreboard.MatchAlreadyExistsError::class.java)
-            it.assertThat(scoreboard.getMatches().size).isEqualTo(2)
-            it.assertThat(scoreboard.getMatches().map { m -> m.awayTeam }).doesNotContain("awayTeam3")
+            it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(2)
+            it.assertThat(scoreboard.getSortedMatches().map { m -> m.awayTeam }).doesNotContain("awayTeam3")
         }
     }
 
@@ -71,7 +71,7 @@ class ScoreboardTest {
 
         SoftAssertions.assertSoftly {
             it.assertThat(match3Result.getLeft()).isInstanceOf(Scoreboard.MatchAlreadyExistsError::class.java)
-            it.assertThat(scoreboard.getMatches().size).isEqualTo(2)
+            it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(2)
         }
     }
 
@@ -82,8 +82,8 @@ class ScoreboardTest {
 
         SoftAssertions.assertSoftly {
             it.assertThat(match3Result.getLeft()).isInstanceOf(Scoreboard.MatchAlreadyExistsError::class.java)
-            it.assertThat(scoreboard.getMatches().size).isEqualTo(1)
-            it.assertThat(scoreboard.getMatches().map { m -> m.awayTeam }).doesNotContain("awayTeam3")
+            it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(1)
+            it.assertThat(scoreboard.getSortedMatches().map { m -> m.awayTeam }).doesNotContain("awayTeam3")
         }
     }
 
@@ -97,7 +97,7 @@ class ScoreboardTest {
         scoreboard.addHomeScore(match1.id)
         scoreboard.addHomeScore(match2.id)
 
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
 
         SoftAssertions.assertSoftly {
             it.assertThat(matches.find { m -> m.id == match1.id }?.homeScore).isEqualTo(2)
@@ -116,7 +116,7 @@ class ScoreboardTest {
         scoreboard.addAwayScore(match3.id)
         scoreboard.addAwayScore(match1.id)
 
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
 
         SoftAssertions.assertSoftly {
             it.assertThat(matches.find { m -> m.id == match1.id }?.awayScore).isEqualTo(1)
@@ -139,7 +139,7 @@ class ScoreboardTest {
         scoreboard.addAwayScore(match3.id)
         scoreboard.addAwayScore(match1.id)
 
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
 
         SoftAssertions.assertSoftly {
             it.assertThat(matches.find { m -> m.id == match1.id }?.homeScore).isEqualTo(2)
@@ -157,7 +157,7 @@ class ScoreboardTest {
         val matchUpdateResult = scoreboard.addHomeScore(UUID.randomUUID())
         SoftAssertions.assertSoftly {
             it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
-            it.assertThat(scoreboard.getMatches().first().homeScore).isEqualTo(0)
+            it.assertThat(scoreboard.getSortedMatches().first().homeScore).isEqualTo(0)
         }
     }
 
@@ -168,7 +168,7 @@ class ScoreboardTest {
         val matchUpdateResult = scoreboard.addAwayScore(UUID.randomUUID())
         SoftAssertions.assertSoftly {
             it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
-            it.assertThat(scoreboard.getMatches().first().awayScore).isEqualTo(0)
+            it.assertThat(scoreboard.getSortedMatches().first().awayScore).isEqualTo(0)
         }
     }
 
@@ -178,8 +178,8 @@ class ScoreboardTest {
         val matchUpdateResult = scoreboard.updateScore(UUID.randomUUID(), 1, 2)
         SoftAssertions.assertSoftly {
             it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
-            it.assertThat(scoreboard.getMatches().first().awayScore).isEqualTo(0)
-            it.assertThat(scoreboard.getMatches().first().homeScore).isEqualTo(0)
+            it.assertThat(scoreboard.getSortedMatches().first().awayScore).isEqualTo(0)
+            it.assertThat(scoreboard.getSortedMatches().first().homeScore).isEqualTo(0)
         }
     }
 
@@ -190,7 +190,7 @@ class ScoreboardTest {
         val match3ID = createMatch("homeTeam3", "awayTeam3").id
         scoreboard.updateScore(matchID, 1, 2).getOrElse { fail("Match has not been created", it) }
         scoreboard.updateScore(match3ID, 5, 3).getOrElse { fail("Match has not been created", it) }
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
         SoftAssertions.assertSoftly {
             it.assertThat(matches.find { m -> m.id == matchID }?.homeScore).isEqualTo(1)
             it.assertThat(matches.find { m -> m.id == matchID }?.awayScore).isEqualTo(2)
@@ -205,7 +205,7 @@ class ScoreboardTest {
     fun `should remove finished match`() {
         val matchID = createMatch("homeTeam", "awayTeam").id
         scoreboard.finishMatch(matchID)
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
         assertThat(matches.size).isEqualTo(0)
     }
 
@@ -217,7 +217,7 @@ class ScoreboardTest {
         val match4 = createMatch("homeTeam4", "awayTeam4")
         scoreboard.finishMatch(match.id)
         scoreboard.finishMatch(match3.id)
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
         assertThat(matches).containsExactlyInAnyOrder(match2, match4)
     }
 
@@ -227,10 +227,66 @@ class ScoreboardTest {
         scoreboard.finishMatch(match.id)
         scoreboard.finishMatch(match.id)
         scoreboard.finishMatch(match.id)
-        val matches = scoreboard.getMatches()
+        val matches = scoreboard.getSortedMatches()
         assertThat(matches.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `should return proper data when sorting matches`() {
+        createMatchWithScore("Mexico", "Canada", 0, 5)
+        createMatchWithScore("Spain", "Brazil", 10, 2)
+
+        val sortedMatches = scoreboard.getSortedMatches()
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(sortedMatches[0].homeTeam).isEqualTo("Spain")
+            it.assertThat(sortedMatches[0].awayTeam).isEqualTo("Brazil")
+            it.assertThat(sortedMatches[0].homeScore).isEqualTo(10)
+            it.assertThat(sortedMatches[0].awayScore).isEqualTo(2)
+            it.assertThat(sortedMatches[1].homeTeam).isEqualTo("Mexico")
+            it.assertThat(sortedMatches[1].awayTeam).isEqualTo("Canada")
+            it.assertThat(sortedMatches[1].homeScore).isEqualTo(0)
+            it.assertThat(sortedMatches[1].awayScore).isEqualTo(5)
+        }
+    }
+
+
+
+    @Test
+    fun `should sort matches by total score`() {
+        createMatchWithScore("Mexico", "Canada", 0, 5)
+        createMatchWithScore("Spain", "Brazil", 10, 2)
+        createMatchWithScore("Germany", "France",2,2)
+
+        val sortedMatches = scoreboard.getSortedMatches()
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(sortedMatches[0].homeTeam).isEqualTo("Spain")
+            it.assertThat(sortedMatches[1].homeTeam).isEqualTo("Mexico")
+            it.assertThat(sortedMatches[2].homeTeam).isEqualTo("Germany")
+        }
+    }
+
+    @Test
+    fun `should sort matches by time when total score is the same`() {
+        createMatchWithScore("Mexico", "Canada", 0, 5)
+        createMatchWithScore("Spain", "Brazil", 5, 0)
+        createMatchWithScore("Germany", "France", 2, 3)
+
+        val sortedMatches = scoreboard.getSortedMatches()
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(sortedMatches[0].homeTeam).isEqualTo("Germany")
+            it.assertThat(sortedMatches[1].homeTeam).isEqualTo("Spain")
+            it.assertThat(sortedMatches[2].homeTeam).isEqualTo("Mexico")
+        }
     }
 
     private fun createMatch(homeTeam: String, awayTeam: String) =
         scoreboard.startMatch(homeTeam, awayTeam).getOrElse { fail("Match has not been created", it) }
+
+    private fun createMatchWithScore(homeTeam: String, awayTeam: String, homeScore: Int, awayScore: Int) {
+        val match = createMatch(homeTeam, awayTeam)
+        scoreboard.updateScore(match.id, homeScore, awayScore)
+    }
 }

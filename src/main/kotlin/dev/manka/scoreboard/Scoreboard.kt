@@ -46,8 +46,11 @@ class Scoreboard {
         matches.remove(id)
     }
 
-    fun getMatches(): List<MatchDTO> {
-        return matches.map { MatchDTO(it.value) }
+    fun getSortedMatches(): List<MatchDTO> {
+        return matches
+            .values
+            .sortedDescending()
+            .map { MatchDTO(it) }
     }
 
     private fun matchesShareSameTeam(m1: Match, m2: Match) =
