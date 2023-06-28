@@ -3,9 +3,8 @@ package dev.manka.scoreboard
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import java.util.*
 
-class Match(homeTeam: String, awayTeam: String) {
+internal class Match(homeTeam: String, awayTeam: String) {
     init {
         require(homeTeam.isNotBlank()) { "Home team cannot be blank" }
         require(awayTeam.isNotBlank()) { "Away team cannot be blank" }
