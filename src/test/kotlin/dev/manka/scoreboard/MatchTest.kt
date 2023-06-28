@@ -1,11 +1,11 @@
 package dev.manka.scoreboard
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.*
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 
 
-class MatchTest{
+class MatchTest {
     @Test
     fun `should start match`() {
         val match = Match("homeTeam", "awayTeam")
@@ -16,27 +16,64 @@ class MatchTest{
             it.assertThat(match.awayScore).isEqualTo(0)
         }
     }
+
     @Test
     fun `should not start match with one team`() {
-        Assertions.assertThatThrownBy{ Match("homeTeam", "homeTeam") }
+        assertThatThrownBy { Match("homeTeam", "homeTeam") }
             .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test
     fun `should not start match with empty home team name`() {
-        Assertions.assertThatThrownBy{ Match("", "homeTeam") }
+        assertThatThrownBy { Match("", "homeTeam") }
             .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test
     fun `should not start match with empty away team name`() {
-        Assertions.assertThatThrownBy{ Match("homeTeam", "") }
+        assertThatThrownBy { Match("homeTeam", "") }
             .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test
     fun `should not start match with both teams names empty`() {
-        Assertions.assertThatThrownBy{ Match("", "") }
+        assertThatThrownBy { Match("", "") }
             .isInstanceOf(IllegalArgumentException::class.java)
     }
+
+    @Test
+    fun `should add home score`() {
+        val match = Match("homeTeam", "awayTeam")
+        match.addHomeScore()
+        assertThat(match.homeScore).isEqualTo(1)
+    }
+
+    @Test
+    fun `should add away score`() {
+        val match = Match("homeTeam", "awayTeam")
+        match.addAwayScore()
+        assertThat(match.awayScore).isEqualTo(1)
+    }
+
+    @Test
+    fun `should add multiple scores`() {
+        val match = Match("homeTeam", "awayTeam")
+
+        match.addHomeScore()
+        match.addHomeScore()
+        match.addHomeScore()
+        match.addHomeScore()
+        match.addHomeScore()
+        match.addHomeScore()
+
+        match.addAwayScore()
+        match.addAwayScore()
+        match.addAwayScore()
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(match.homeScore).isEqualTo(6)
+            it.assertThat(match.awayScore).isEqualTo(3)
+        }
+    }
+
 }
