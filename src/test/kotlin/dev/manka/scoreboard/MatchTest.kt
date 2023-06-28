@@ -1,5 +1,6 @@
 package dev.manka.scoreboard
 
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 
@@ -14,5 +15,10 @@ class MatchTest{
             it.assertThat(match.homeScore).isEqualTo(0)
             it.assertThat(match.awayScore).isEqualTo(0)
         }
+    }
+    @Test
+    fun `should not start match with one team`() {
+        Assertions.assertThatThrownBy{ Match("homeTeam", "homeTeam") }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 }
