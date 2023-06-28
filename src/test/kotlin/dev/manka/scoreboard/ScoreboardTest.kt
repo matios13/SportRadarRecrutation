@@ -4,6 +4,7 @@ import arrow.core.getOrElse
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class ScoreboardTest {
     private val scoreboard = Scoreboard()
@@ -146,6 +147,56 @@ class ScoreboardTest {
             it.assertThat(matches.find { m -> m.id == match1.id }?.awayScore).isEqualTo(1)
             it.assertThat(matches.find { m -> m.id == match2.id }?.awayScore).isEqualTo(0)
             it.assertThat(matches.find { m -> m.id == match3.id }?.awayScore).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun `should not update homeScore when Match is not existing`() {
+        createMatch("homeTeam", "awayTeam").id
+        val matchUpdateResult = scoreboard.addHomeScore(UUID.randomUUID())
+        SoftAssertions.assertSoftly {
+            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
+            it.assertThat(scoreboard.getMatches().first().homeScore).isEqualTo(0)
+        }
+    }
+
+
+    @Test
+    fun `should not update awayScore when Match is not existing`() {
+        createMatch("homeTeam", "awayTeam").id
+        val matchUpdateResult = scoreboard.addAwayScore(UUID.randomUUID())
+        SoftAssertions.assertSoftly {
+            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
+            it.assertThat(scoreboard.getMatches().first().awayScore).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun `should not update score when Match is not existing`() {
+        createMatch("homeTeam", "awayTeam").id
+        val matchUpdateResult = scoreboard.updateScore(UUID.randomUUID(), 1, 2)
+        SoftAssertions.assertSoftly {
+            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
+            it.assertThat(scoreboard.getMatches().first().awayScore).isEqualTo(0)
+            it.assertThat(scoreboard.getMatches().first().homeScore).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun `should update only proper match score`() {
+        val matchID = createMatch("homeTeam", "awayTeam").id
+        val match2ID = createMatch("homeTeam2", "awayTeam2").id
+        val match3ID = createMatch("homeTeam3", "awayTeam3").id
+        scoreboard.updateScore(matchID, 1, 2).getOrElse { fail("Match has not been created", it) }
+        scoreboard.updateScore(match3ID, 5, 3).getOrElse { fail("Match has not been created", it) }
+        val matches = scoreboard.getMatches()
+        SoftAssertions.assertSoftly {
+            it.assertThat(matches.find { m -> m.id == matchID }?.homeScore).isEqualTo(1)
+            it.assertThat(matches.find { m -> m.id == matchID }?.awayScore).isEqualTo(2)
+            it.assertThat(matches.find { m -> m.id == match2ID }?.homeScore).isEqualTo(0)
+            it.assertThat(matches.find { m -> m.id == match2ID }?.awayScore).isEqualTo(0)
+            it.assertThat(matches.find { m -> m.id == match3ID }?.homeScore).isEqualTo(5)
+            it.assertThat(matches.find { m -> m.id == match3ID }?.awayScore).isEqualTo(3)
         }
     }
 

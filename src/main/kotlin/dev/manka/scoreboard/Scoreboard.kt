@@ -34,6 +34,14 @@ class Scoreboard {
         return MatchNotFoundError(id).left()
     }
 
+    fun updateScore(id: UUID, homeScore: Int, awayScore: Int): Either<MatchNotFoundError, MatchDTO> {
+        matches[id]?.let {
+            it.updateScore(homeScore, awayScore)
+            return MatchDTO(it).right()
+        }
+        return MatchNotFoundError(id).left()
+    }
+
     fun getMatches(): List<MatchDTO> {
         return matches.map { MatchDTO(it.value) }
     }
