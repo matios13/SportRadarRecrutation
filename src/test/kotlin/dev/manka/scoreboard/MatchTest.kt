@@ -1,5 +1,6 @@
 package dev.manka.scoreboard
 
+import arrow.core.Either
 import org.assertj.core.api.Assertions.*
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
@@ -75,16 +76,43 @@ class MatchTest {
             it.assertThat(match.awayScore).isEqualTo(3)
         }
     }
-
     @Test
     fun `should update score with absolute values`() {
         val match = Match("homeTeam", "awayTeam")
 
-        match.updateScore(3, 2)
-
+        val updateScoreResult = match.updateScore(3, 2)
         SoftAssertions.assertSoftly {
+            it.assertThat(updateScoreResult.isRight()).isTrue()
             it.assertThat(match.homeScore).isEqualTo(3)
             it.assertThat(match.awayScore).isEqualTo(2)
         }
     }
+
+    @Test
+    fun `should not update score with lower values`() {
+        val match = Match("homeTeam", "awayTeam")
+        match.updateScore(3, 2)
+        val updateScoreResult = match.updateScore(2, 2)
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(updateScoreResult.getLeft()).isInstanceOf(Match.CannotDecreaseScoreError::class.java)
+            it.assertThat(match.homeScore).isEqualTo(3)
+            it.assertThat(match.awayScore).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun `should not update score with negative values`() {
+        val match = Match("homeTeam", "awayTeam")
+        match.updateScore(3, 2)
+        val updateScoreResult = match.updateScore(-1, 2)
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(updateScoreResult.getLeft()).isInstanceOf(Match.CannotDecreaseScoreError::class.java)
+            it.assertThat(match.homeScore).isEqualTo(3)
+            it.assertThat(match.awayScore).isEqualTo(2)
+        }
+    }
+
+    private fun Either<Error, Any>.getLeft() = this.swap().getOrNull()
 }

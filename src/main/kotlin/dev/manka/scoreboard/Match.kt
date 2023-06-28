@@ -26,8 +26,16 @@ class Match(homeTeam: String, awayTeam: String) {
         awayScore++
     }
 
-    fun updateScore(homeScore: Int, awayScore: Int){
+    fun updateScore(homeScore: Int, awayScore: Int): Either<CannotDecreaseScoreError, Unit> {
+        if (homeScore < this.homeScore || awayScore < this.awayScore) {
+            return CannotDecreaseScoreError(this.homeScore, this.awayScore, homeScore, awayScore).left()
+        }
         this.homeScore = homeScore
         this.awayScore = awayScore
+        return Unit.right()
     }
+
+    class CannotDecreaseScoreError(fromHomeScore: Int, fromAwayScore: Int, toHomeScore: Int, toAwayScore: Int) :
+        Error("Cannot decrease score from $fromHomeScore:$fromAwayScore to $toHomeScore:$toAwayScore")
+
 }
