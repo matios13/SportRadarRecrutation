@@ -1,5 +1,9 @@
 package dev.manka.scoreboard
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
+
 class Match(homeTeam: String, awayTeam: String) {
     init {
         require(homeTeam.isNotBlank()) { "Home team cannot be blank" }
@@ -22,4 +26,8 @@ class Match(homeTeam: String, awayTeam: String) {
         awayScore++
     }
 
+    fun updateScore(homeScore: Int, awayScore: Int){
+        this.homeScore = homeScore
+        this.awayScore = awayScore
+    }
 }

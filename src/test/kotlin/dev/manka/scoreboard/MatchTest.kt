@@ -76,4 +76,15 @@ class MatchTest {
         }
     }
 
+    @Test
+    fun `should update score with absolute values`() {
+        val match = Match("homeTeam", "awayTeam")
+
+        match.updateScore(3, 2)
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(match.homeScore).isEqualTo(3)
+            it.assertThat(match.awayScore).isEqualTo(2)
+        }
+    }
 }
