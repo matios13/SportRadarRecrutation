@@ -1,6 +1,7 @@
 package dev.manka.scoreboard
 
 import arrow.core.getOrElse
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -198,6 +199,36 @@ class ScoreboardTest {
             it.assertThat(matches.find { m -> m.id == match3ID }?.homeScore).isEqualTo(5)
             it.assertThat(matches.find { m -> m.id == match3ID }?.awayScore).isEqualTo(3)
         }
+    }
+
+    @Test
+    fun `should remove finished match`() {
+        val matchID = createMatch("homeTeam", "awayTeam").id
+        scoreboard.finishMatch(matchID)
+        val matches = scoreboard.getMatches()
+        assertThat(matches.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `should remove only finished match`() {
+        val match = createMatch("homeTeam", "awayTeam")
+        val match2 = createMatch("homeTeam2", "awayTeam2")
+        val match3 = createMatch("homeTeam3", "awayTeam3")
+        val match4 = createMatch("homeTeam4", "awayTeam4")
+        scoreboard.finishMatch(match.id)
+        scoreboard.finishMatch(match3.id)
+        val matches = scoreboard.getMatches()
+        assertThat(matches).containsExactlyInAnyOrder(match2, match4)
+    }
+
+    @Test
+    fun `should handle multiple finishes of one match`(){
+        val match = createMatch("homeTeam", "awayTeam")
+        scoreboard.finishMatch(match.id)
+        scoreboard.finishMatch(match.id)
+        scoreboard.finishMatch(match.id)
+        val matches = scoreboard.getMatches()
+        assertThat(matches.size).isEqualTo(0)
     }
 
     private fun createMatch(homeTeam: String, awayTeam: String) =

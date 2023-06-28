@@ -112,25 +112,4 @@ class MatchTest {
             it.assertThat(match.awayScore).isEqualTo(2)
         }
     }
-
-    @Test
-    fun `should finish match`() {
-        val match = Match("homeTeam", "awayTeam")
-        val finishedMatch = match.finish()
-        SoftAssertions.assertSoftly {
-            it.assertThat(match.isFinished).isTrue()
-            it.assertThat(finishedMatch.isRight()).isTrue()
-        }
-    }
-
-    @Test
-    fun `should not finish match twice`() {
-        val match = Match("homeTeam", "awayTeam")
-        match.finish()
-        val finishedMatchTwice = match.finish()
-        SoftAssertions.assertSoftly {
-            it.assertThat(match.isFinished).isTrue()
-            it.assertThat(finishedMatchTwice.getLeft()).isInstanceOf(Match.MatchAlreadyFinishedError::class.java)
-        }
-    }
 }

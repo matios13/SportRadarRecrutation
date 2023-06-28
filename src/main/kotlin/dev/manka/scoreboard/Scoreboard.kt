@@ -42,6 +42,10 @@ class Scoreboard {
         return MatchNotFoundError(id).left()
     }
 
+    fun finishMatch(id: UUID){
+        matches.remove(id)
+    }
+
     fun getMatches(): List<MatchDTO> {
         return matches.map { MatchDTO(it.value) }
     }
