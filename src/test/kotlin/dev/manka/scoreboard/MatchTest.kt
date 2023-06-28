@@ -21,4 +21,22 @@ class MatchTest{
         Assertions.assertThatThrownBy{ Match("homeTeam", "homeTeam") }
             .isInstanceOf(IllegalArgumentException::class.java)
     }
+
+    @Test
+    fun `should not start match with empty home team name`() {
+        Assertions.assertThatThrownBy{ Match("", "homeTeam") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `should not start match with empty away team name`() {
+        Assertions.assertThatThrownBy{ Match("homeTeam", "") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `should not start match with both teams names empty`() {
+        Assertions.assertThatThrownBy{ Match("", "") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
 }
