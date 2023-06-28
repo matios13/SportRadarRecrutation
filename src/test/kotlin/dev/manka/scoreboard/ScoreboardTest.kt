@@ -85,7 +85,69 @@ class ScoreboardTest {
         }
     }
 
+    @Test
+    fun `should add homeTeam score only to specific match`() {
+        val match1 = createMatch("homeTeam1", "awayTeam1")
+        val match2 = createMatch("homeTeam2", "awayTeam2")
+        val match3 = createMatch("homeTeam3", "awayTeam3")
 
+        scoreboard.addHomeScore(match1.id)
+        scoreboard.addHomeScore(match1.id)
+        scoreboard.addHomeScore(match2.id)
+
+        val matches = scoreboard.getMatches()
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(matches.find { m -> m.id == match1.id }?.homeScore).isEqualTo(2)
+            it.assertThat(matches.find { m -> m.id == match2.id }?.homeScore).isEqualTo(1)
+            it.assertThat(matches.find { m -> m.id == match3.id }?.homeScore).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun `should add awayTeam score only to specific match`() {
+        val match1 = createMatch("homeTeam1", "awayTeam1")
+        val match2 = createMatch("homeTeam2", "awayTeam2")
+        val match3 = createMatch("homeTeam3", "awayTeam3")
+
+        scoreboard.addAwayScore(match3.id)
+        scoreboard.addAwayScore(match3.id)
+        scoreboard.addAwayScore(match1.id)
+
+        val matches = scoreboard.getMatches()
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(matches.find { m -> m.id == match1.id }?.awayScore).isEqualTo(1)
+            it.assertThat(matches.find { m -> m.id == match2.id }?.awayScore).isEqualTo(0)
+            it.assertThat(matches.find { m -> m.id == match3.id }?.awayScore).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun `should add both homeTeam and awayTeam score only to specific match`() {
+        val match1 = createMatch("homeTeam1", "awayTeam1")
+        val match2 = createMatch("homeTeam2", "awayTeam2")
+        val match3 = createMatch("homeTeam3", "awayTeam3")
+
+        scoreboard.addHomeScore(match1.id)
+        scoreboard.addHomeScore(match1.id)
+        scoreboard.addHomeScore(match2.id)
+
+        scoreboard.addAwayScore(match3.id)
+        scoreboard.addAwayScore(match3.id)
+        scoreboard.addAwayScore(match1.id)
+
+        val matches = scoreboard.getMatches()
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(matches.find { m -> m.id == match1.id }?.homeScore).isEqualTo(2)
+            it.assertThat(matches.find { m -> m.id == match2.id }?.homeScore).isEqualTo(1)
+            it.assertThat(matches.find { m -> m.id == match3.id }?.homeScore).isEqualTo(0)
+            it.assertThat(matches.find { m -> m.id == match1.id }?.awayScore).isEqualTo(1)
+            it.assertThat(matches.find { m -> m.id == match2.id }?.awayScore).isEqualTo(0)
+            it.assertThat(matches.find { m -> m.id == match3.id }?.awayScore).isEqualTo(2)
+        }
+    }
 
     private fun createMatch(homeTeam: String, awayTeam: String) =
         scoreboard.startMatch(homeTeam, awayTeam).getOrElse { fail("Match has not been created", it) }

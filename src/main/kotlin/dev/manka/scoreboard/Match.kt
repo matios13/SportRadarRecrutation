@@ -3,6 +3,7 @@ package dev.manka.scoreboard
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import java.util.*
 
 internal class Match(homeTeam: String, awayTeam: String) {
     init {
@@ -11,6 +12,7 @@ internal class Match(homeTeam: String, awayTeam: String) {
         require(homeTeam != awayTeam) { "Home team and away team cannot be the same" }
     }
 
+    val id: UUID = UUID.randomUUID()
     val homeTeam = homeTeam
     val awayTeam = awayTeam
     var homeScore = 0
