@@ -1,6 +1,5 @@
 package dev.manka.scoreboard
 
-import arrow.core.Either
 import org.assertj.core.api.Assertions.*
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
@@ -134,6 +133,4 @@ class MatchTest {
             it.assertThat(finishedMatchTwice.getLeft()).isInstanceOf(Match.MatchAlreadyFinishedError::class.java)
         }
     }
-
-    private fun Either<Error, Any>.getLeft() = this.swap().getOrNull()
 }
