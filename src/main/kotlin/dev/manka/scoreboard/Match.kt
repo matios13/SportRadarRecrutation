@@ -47,6 +47,7 @@ internal class Match(homeTeam: String, awayTeam: String) : Comparable<Match>{
         Error("Cannot decrease score from $fromHomeScore:$fromAwayScore to $toHomeScore:$toAwayScore")
 
     override fun compareTo(other: Match): Int {
-        return (homeScore+awayScore) - (other.homeScore+other.awayScore)
+        val homeScoreDiff = (homeScore+awayScore) - (other.homeScore+other.awayScore)
+        return if (homeScoreDiff != 0) homeScoreDiff else this.startingTime.compareTo(other.startingTime)
     }
 }
