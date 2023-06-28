@@ -73,6 +73,19 @@ class ScoreboardTest {
         }
     }
 
+    @Test
+    fun `should not start match for home team that's already playing as away team in other match`() {
+        createMatch("homeTeam1", "awayTeam1")
+        val match3Result = scoreboard.startMatch("awayTeam1", "awayTeam3")
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(match3Result.getLeft()).isInstanceOf(Scoreboard.MatchAlreadyExistsError::class.java)
+            it.assertThat(scoreboard.getMatches().size).isEqualTo(1)
+            it.assertThat(scoreboard.getMatches().map { m -> m.awayTeam }).doesNotContain("awayTeam3")
+        }
+    }
+
+
 
     private fun createMatch(homeTeam: String, awayTeam: String) =
         scoreboard.startMatch(homeTeam, awayTeam).getOrElse { fail("Match has not been created", it) }

@@ -22,7 +22,7 @@ class Scoreboard {
     }
 
     private fun matchesShareSameTeam(m1: Match, m2: Match) =
-        m1.homeTeam == m2.homeTeam || m1.awayTeam == m2.awayTeam
+        m1.homeTeam == m2.homeTeam || m1.awayTeam == m2.awayTeam || m1.homeTeam == m2.awayTeam || m1.awayTeam == m2.homeTeam
 
     class MatchAlreadyExistsError(homeTeam: String?,awayTeam:String?): Error("Match between $homeTeam and $awayTeam already exists")
 
