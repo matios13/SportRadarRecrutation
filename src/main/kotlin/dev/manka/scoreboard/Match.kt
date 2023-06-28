@@ -3,9 +3,10 @@ package dev.manka.scoreboard
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import java.time.LocalDateTime
 import java.util.*
 
-internal class Match(homeTeam: String, awayTeam: String) {
+internal class Match(homeTeam: String, awayTeam: String) : Comparable<Match>{
     init {
         require(homeTeam.isNotBlank()) { "Home team cannot be blank" }
         require(awayTeam.isNotBlank()) { "Away team cannot be blank" }
@@ -15,6 +16,10 @@ internal class Match(homeTeam: String, awayTeam: String) {
     val id: UUID = UUID.randomUUID()
     val homeTeam = homeTeam
     val awayTeam = awayTeam
+
+    // it might be a good idea to move it to constructor if match could start in the past or another
+    // part of the system is responsible for starting it
+    private val startingTime: LocalDateTime = LocalDateTime.now()
     var homeScore = 0
         private set
     var awayScore = 0
@@ -41,6 +46,7 @@ internal class Match(homeTeam: String, awayTeam: String) {
     class CannotDecreaseScoreError(fromHomeScore: Int, fromAwayScore: Int, toHomeScore: Int, toAwayScore: Int) :
         Error("Cannot decrease score from $fromHomeScore:$fromAwayScore to $toHomeScore:$toAwayScore")
 
-    class MatchAlreadyFinishedError(homeTeam: String, awayTeam: String) :
-        Error("Match between $homeTeam and $awayTeam already finished")
+    override fun compareTo(other: Match): Int {
+        return (homeScore+awayScore) - (other.homeScore+other.awayScore)
+    }
 }

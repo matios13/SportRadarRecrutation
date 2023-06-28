@@ -112,4 +112,26 @@ class MatchTest {
             it.assertThat(match.awayScore).isEqualTo(2)
         }
     }
+
+    @Test
+    fun `should return value above 0 when comparing to match with lower total score`(){
+        val match = Match("homeTeam", "awayTeam")
+        match.updateScore(3, 4)
+        val match2 = Match("homeTeam2", "awayTeam2")
+        match2.updateScore(5, 1)
+        val compareResult = match.compareTo(match2)
+
+        assertThat(compareResult).isGreaterThan(0)
+    }
+
+    @Test
+    fun `should return value below 0 when comparing to match with higher total score`(){
+        val match = Match("homeTeam", "awayTeam")
+        match.updateScore(3, 1)
+        val match2 = Match("homeTeam2", "awayTeam2")
+        match2.updateScore(5, 0)
+        val compareResult = match.compareTo(match2)
+
+        assertThat(compareResult).isLessThan(0)
+    }
 }
