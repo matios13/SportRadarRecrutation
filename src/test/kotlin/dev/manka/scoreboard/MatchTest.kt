@@ -9,6 +9,7 @@ class MatchTest {
     @Test
     fun `should start match`() {
         val match = Match("homeTeam", "awayTeam")
+
         SoftAssertions.assertSoftly {
             it.assertThat(match.homeTeam).isEqualTo("homeTeam")
             it.assertThat(match.awayTeam).isEqualTo("awayTeam")
@@ -44,14 +45,18 @@ class MatchTest {
     @Test
     fun `should add home score`() {
         val match = Match("homeTeam", "awayTeam")
+
         match.addHomeScore()
+
         assertThat(match.homeScore).isEqualTo(1)
     }
 
     @Test
     fun `should add away score`() {
         val match = Match("homeTeam", "awayTeam")
+
         match.addAwayScore()
+
         assertThat(match.awayScore).isEqualTo(1)
     }
 
@@ -81,6 +86,7 @@ class MatchTest {
         val match = Match("homeTeam", "awayTeam")
 
         val updateScoreResult = match.updateScore(3, 2)
+
         SoftAssertions.assertSoftly {
             it.assertThat(updateScoreResult.isRight()).isTrue()
             it.assertThat(match.homeScore).isEqualTo(3)
@@ -92,6 +98,7 @@ class MatchTest {
     fun `should not update score with lower values`() {
         val match = Match("homeTeam", "awayTeam")
         match.updateScore(3, 2)
+
         val updateScoreResult = match.updateScore(2, 2)
 
         SoftAssertions.assertSoftly {
@@ -105,6 +112,7 @@ class MatchTest {
     fun `should not update score with negative values`() {
         val match = Match("homeTeam", "awayTeam")
         match.updateScore(3, 2)
+
         val updateScoreResult = match.updateScore(-1, 2)
 
         SoftAssertions.assertSoftly {
@@ -120,6 +128,7 @@ class MatchTest {
         match.updateScore(3, 4)
         val match2 = Match("homeTeam2", "awayTeam2")
         match2.updateScore(5, 1)
+
         val compareResult = match.compareTo(match2)
 
         assertThat(compareResult).isGreaterThan(0)
@@ -131,6 +140,7 @@ class MatchTest {
         match.updateScore(3, 1)
         val match2 = Match("homeTeam2", "awayTeam2")
         match2.updateScore(5, 0)
+
         val compareResult = match.compareTo(match2)
 
         assertThat(compareResult).isLessThan(0)
@@ -142,6 +152,7 @@ class MatchTest {
         match.updateScore(0, 0)
         val match2 = Match("homeTeam2", "awayTeam2")
         match2.updateScore(0, 0)
+
         val compareResult = match.compareTo(match2)
 
         assertThat(compareResult).isLessThan(0)
@@ -153,6 +164,7 @@ class MatchTest {
         match.updateScore(3, 2)
         val match2 = Match("homeTeam2", "awayTeam2")
         match2.updateScore(1, 4)
+
         val compareResult = match2.compareTo(match)
 
         assertThat(compareResult).isGreaterThan(0)

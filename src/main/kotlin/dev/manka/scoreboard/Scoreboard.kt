@@ -18,7 +18,7 @@ class Scoreboard {
             }
             matches[match.id] = match
             return MatchDTO(match).right()
-        }catch (e: IllegalArgumentException){
+        } catch (e: IllegalArgumentException) {
             return MatchCreationError.IllegalArgumentError(e.message).left()
         }
     }
