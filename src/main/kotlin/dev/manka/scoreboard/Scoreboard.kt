@@ -39,6 +39,8 @@ class Scoreboard {
         return MatchUpdateError.MatchNotFoundError(id).left()
     }
 
+    //Consider removing that method after talk with client, scores should be updated by adding only one point at a time,
+    // as it is in real Football game
     fun updateScore(id: UUID, homeScore: Int, awayScore: Int): Either<MatchUpdateError, MatchDTO> {
         matches[id]?.let { match ->
             return match.updateScore(homeScore, awayScore).map { MatchDTO(match) }
