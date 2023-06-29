@@ -1,5 +1,6 @@
 package dev.manka.scoreboard
 
+import MatchUpdateError
 import arrow.core.getOrElse
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
@@ -56,9 +57,20 @@ class ScoreboardTest {
         val match3Result = scoreboard.startMatch("homeTeam1", "awayTeam3")
 
         SoftAssertions.assertSoftly {
-            it.assertThat(match3Result.getLeft()).isInstanceOf(Scoreboard.MatchAlreadyExistsError::class.java)
+            it.assertThat(match3Result.getLeft()).isInstanceOf(MatchCreationError.MatchAlreadyExistsError::class.java)
             it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(2)
             it.assertThat(scoreboard.getSortedMatches().map { m -> m.awayTeam }).doesNotContain("awayTeam3")
+        }
+    }
+
+    @Test
+    fun `should not start a match for team with empty names`() {
+        val matchCreationResult = scoreboard.startMatch("", "")
+
+        SoftAssertions.assertSoftly {
+            it.assertThat(matchCreationResult.getLeft())
+                .isInstanceOf(MatchCreationError.IllegalArgumentError::class.java)
+            it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(0)
         }
     }
 
@@ -70,7 +82,7 @@ class ScoreboardTest {
         val match3Result = scoreboard.startMatch("homeTeam1", "awayTeam2")
 
         SoftAssertions.assertSoftly {
-            it.assertThat(match3Result.getLeft()).isInstanceOf(Scoreboard.MatchAlreadyExistsError::class.java)
+            it.assertThat(match3Result.getLeft()).isInstanceOf(MatchCreationError.MatchAlreadyExistsError::class.java)
             it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(2)
         }
     }
@@ -81,7 +93,7 @@ class ScoreboardTest {
         val match3Result = scoreboard.startMatch("awayTeam1", "awayTeam3")
 
         SoftAssertions.assertSoftly {
-            it.assertThat(match3Result.getLeft()).isInstanceOf(Scoreboard.MatchAlreadyExistsError::class.java)
+            it.assertThat(match3Result.getLeft()).isInstanceOf(MatchCreationError.MatchAlreadyExistsError::class.java)
             it.assertThat(scoreboard.getSortedMatches().size).isEqualTo(1)
             it.assertThat(scoreboard.getSortedMatches().map { m -> m.awayTeam }).doesNotContain("awayTeam3")
         }
@@ -156,18 +168,17 @@ class ScoreboardTest {
         createMatch("homeTeam", "awayTeam").id
         val matchUpdateResult = scoreboard.addHomeScore(UUID.randomUUID())
         SoftAssertions.assertSoftly {
-            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
+            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(MatchUpdateError.MatchNotFoundError::class.java)
             it.assertThat(scoreboard.getSortedMatches().first().homeScore).isEqualTo(0)
         }
     }
-
 
     @Test
     fun `should not update awayScore when Match is not existing`() {
         createMatch("homeTeam", "awayTeam").id
         val matchUpdateResult = scoreboard.addAwayScore(UUID.randomUUID())
         SoftAssertions.assertSoftly {
-            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
+            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(MatchUpdateError.MatchNotFoundError::class.java)
             it.assertThat(scoreboard.getSortedMatches().first().awayScore).isEqualTo(0)
         }
     }
@@ -177,9 +188,22 @@ class ScoreboardTest {
         createMatch("homeTeam", "awayTeam").id
         val matchUpdateResult = scoreboard.updateScore(UUID.randomUUID(), 1, 2)
         SoftAssertions.assertSoftly {
-            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(Scoreboard.MatchNotFoundError::class.java)
+            it.assertThat(matchUpdateResult.getLeft()).isInstanceOf(MatchUpdateError.MatchNotFoundError::class.java)
             it.assertThat(scoreboard.getSortedMatches().first().awayScore).isEqualTo(0)
             it.assertThat(scoreboard.getSortedMatches().first().homeScore).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun `should not decrease score for a match`() {
+        val matchId = createMatch("homeTeam", "awayTeam").id
+        scoreboard.updateScore(matchId, 4, 5)
+        val matchUpdateResult = scoreboard.updateScore(matchId, 3, 5)
+        SoftAssertions.assertSoftly {
+            it.assertThat(matchUpdateResult.getLeft())
+                .isInstanceOf(MatchUpdateError.CannotDecreaseScoreError::class.java)
+            it.assertThat(scoreboard.getSortedMatches().first().homeScore).isEqualTo(3)
+            it.assertThat(scoreboard.getSortedMatches().first().awayScore).isEqualTo(5)
         }
     }
 
@@ -222,7 +246,7 @@ class ScoreboardTest {
     }
 
     @Test
-    fun `should handle multiple finishes of one match`(){
+    fun `should handle multiple finishes of one match`() {
         val match = createMatch("homeTeam", "awayTeam")
         scoreboard.finishMatch(match.id)
         scoreboard.finishMatch(match.id)
@@ -251,12 +275,11 @@ class ScoreboardTest {
     }
 
 
-
     @Test
     fun `should sort matches by total score`() {
         createMatchWithScore("Mexico", "Canada", 0, 5)
         createMatchWithScore("Spain", "Brazil", 10, 2)
-        createMatchWithScore("Germany", "France",2,2)
+        createMatchWithScore("Germany", "France", 2, 2)
 
         val sortedMatches = scoreboard.getSortedMatches()
 

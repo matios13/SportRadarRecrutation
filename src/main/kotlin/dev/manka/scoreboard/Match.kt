@@ -34,17 +34,15 @@ internal class Match(homeTeam: String, awayTeam: String) : Comparable<Match>{
         awayScore++
     }
 
-    fun updateScore(homeScore: Int, awayScore: Int): Either<CannotDecreaseScoreError, Unit> {
+    fun updateScore(homeScore: Int, awayScore: Int): Either<MatchUpdateError.CannotDecreaseScoreError, Unit> {
         if (homeScore < this.homeScore || awayScore < this.awayScore) {
-            return CannotDecreaseScoreError(this.homeScore, this.awayScore, homeScore, awayScore).left()
+            return MatchUpdateError.CannotDecreaseScoreError(this.homeScore, this.awayScore, homeScore, awayScore).left()
         }
         this.homeScore = homeScore
         this.awayScore = awayScore
         return Unit.right()
     }
 
-    class CannotDecreaseScoreError(fromHomeScore: Int, fromAwayScore: Int, toHomeScore: Int, toAwayScore: Int) :
-        Error("Cannot decrease score from $fromHomeScore:$fromAwayScore to $toHomeScore:$toAwayScore")
 
     override fun compareTo(other: Match): Int {
         val homeScoreDiff = (homeScore+awayScore) - (other.homeScore+other.awayScore)

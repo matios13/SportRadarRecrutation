@@ -95,7 +95,7 @@ class MatchTest {
         val updateScoreResult = match.updateScore(2, 2)
 
         SoftAssertions.assertSoftly {
-            it.assertThat(updateScoreResult.getLeft()).isInstanceOf(Match.CannotDecreaseScoreError::class.java)
+            it.assertThat(updateScoreResult.getLeft()).isInstanceOf(MatchUpdateError.CannotDecreaseScoreError::class.java)
             it.assertThat(match.homeScore).isEqualTo(3)
             it.assertThat(match.awayScore).isEqualTo(2)
         }
@@ -108,7 +108,7 @@ class MatchTest {
         val updateScoreResult = match.updateScore(-1, 2)
 
         SoftAssertions.assertSoftly {
-            it.assertThat(updateScoreResult.getLeft()).isInstanceOf(Match.CannotDecreaseScoreError::class.java)
+            it.assertThat(updateScoreResult.getLeft()).isInstanceOf(MatchUpdateError.CannotDecreaseScoreError::class.java)
             it.assertThat(match.homeScore).isEqualTo(3)
             it.assertThat(match.awayScore).isEqualTo(2)
         }
